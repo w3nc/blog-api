@@ -159,8 +159,3 @@ curl -i http://localhost:4000/admin/posts
 4. Add a rewrite so deep links work: send all paths to `/index.html`
    (Netlify: a `_redirects` file with `/* /index.html 200`; Vercel: a `vercel.json` rewrite).
 
-## Heads-up
-
-- The seed password (`maria1234` in the example file) is for local testing. Change it before going live.
-- Tokens are kept in localStorage, as the assignment suggests. This is simple but means a script on the page could read the token.
-- The API was tested with curl on local port 4000. The reader and author sites were written but not yet run in a browser.
