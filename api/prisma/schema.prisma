@@ -1,0 +1,56 @@
+// Blog API schema.
+// Three models: User (authors and readers who log in), Post, Comment.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Two roles only: AUTHOR can write/manage posts, USER is a plain account.
+enum Role {
+  AUTHOR
+  USER
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String
+  role         Role      @default(USER)
+  createdAt    DateTime  @default(now())
+  posts        Post[]
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  // "published" is the whole status column: false = draft, true = live.
+  published Boolean   @default(false)
+  // Topic tags shown as blue pills in the reader. An array keeps it simple:
+  // no extra join table for a small blog.
+  tags      String[]  @default([])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  authorId  Int
+  author    User      @relation(fields: [authorId], references: [id])
+  comments  Comment[]
+
+  @@index([published, createdAt])
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  content    String
+  // Comments are open to anyone, so we only keep a typed-in name.
+  authorName String
+  createdAt  DateTime @default(now())
+  postId     Int
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
